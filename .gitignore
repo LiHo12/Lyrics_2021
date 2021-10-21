@@ -1,3 +1,4 @@
 .env
 \.idea
 *.csv
+helper\__pycache__
