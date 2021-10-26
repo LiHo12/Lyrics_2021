@@ -26,5 +26,5 @@ if __name__ == '__main__':
     overall_chart_data.columns = TrackInformation.COLUMN_NAMES
 
     # export to csv
-    overall_chart_data.to_csv('Billboard_Charts_2021.csv',
+    overall_chart_data.to_csv('./data/Billboard_Charts_2021.csv',
                               sep=";")
