@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv, find_dotenv
 import pandas as pd
 from helper.ChartHelper import ChartLyrics
+import time
 
 # find .env file for genius authentication
 load_dotenv(find_dotenv())
@@ -19,20 +20,35 @@ def fetch_lyrics(chart_data):
 
     # loop through all artists
     # authenticate to api
+    counter = 0
     for index, row in chart_data.iterrows():
-        genius = authenticate_to_genius_api()
-
         title = row['title']
         artist = row['artist']
 
+        genius = authenticate_to_genius_api()
+
         # search for track
         track = genius.search_song(title=title,
-                                   artist=artist)
+                                    artist=artist)
 
         # sanity check
         lyrics_instance = ChartLyrics(title, artist, track)
 
         lyrics_data.append(lyrics_instance.return_lyrics_instance())
+
+        counter+=1
+
+        if counter % 100 == 0:
+            # safety copy
+            overall_lyrics_pd = pd.DataFrame(lyrics_data)
+            overall_lyrics_pd.columns = ChartLyrics.COLUMN_NAMES
+
+            # export lyrics
+            overall_lyrics_pd.to_csv('./data/Lyrics_2021.csv',
+                                      sep=";",
+                                      index=False)
+
+            time.sleep(5) # avoid being kicked from API
 
     return lyrics_data
 
@@ -43,16 +59,11 @@ if __name__ == '__main__':
 
     # drop duplicates since tracks do not have to be fetched several times
     chart_data = chart_data.drop_duplicates(subset=['artist', 'title'])
+    print(chart_data.shape)
 
     # get lyrics data and transform to dataframe
     overall_lyrics = fetch_lyrics(chart_data=chart_data)
-    overall_lyrics = pd.DataFrame(overall_lyrics)
-    overall_lyrics.columns = ChartLyrics.COLUMN_NAMES
 
-    # export lyrics
-    overall_lyrics.to_csv('./data/Lyrics_2021.csv',
-                          sep=";",
-                          index=False)
 
 
 

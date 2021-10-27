@@ -13,7 +13,7 @@ if __name__ == '__main__':
 
     # make sure to only get the data for specific time frame
     while datetime.strptime(LAST_DATE, '%Y-%m-%d') >= datetime.strptime(FIRST_DATE, '%Y-%m-%d'):
-        chart = billboard.ChartData('billboard-200', date=LAST_DATE)
+        chart = billboard.ChartData('billboard-global-200', date=LAST_DATE)
         # process data
         chart_processed = [TrackInformation(x, LAST_DATE).return_track_array() for x in chart]
 
@@ -27,4 +27,4 @@ if __name__ == '__main__':
 
     # export to csv
     overall_chart_data.to_csv('./data/Billboard_Charts_2021.csv',
-                              sep=";")
+                              sep=";") # billboard global 200
