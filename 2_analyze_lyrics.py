@@ -3,7 +3,7 @@ from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from collections import Counter
 import matplotlib.pyplot as plt
-from wordcloud import WordCloud
+from wordcloud import WordCloud, ImageColorGenerator
 import numpy as np
 from PIL import Image
 
@@ -12,7 +12,10 @@ ENGLISH_STOPWORDS = stopwords.words('english')
 ENGLISH_STOPWORDS.extend(['im', 'yeah', 'like', 'dont', 'know', 'get', 'got',
                           'oh', 'aint', 'cant', 'caus', 'en', 'caus', 'ill',
                           'ft', 'ooh', 'remix', 'gon', 'even', 'that',
-                          'uh'])
+                          'uh', 'would', 'make', 'se', 'til', 'ive', 'everyth',
+                          'tryna', 'e', 'em', 'that', 'your', 'could',
+                          'la', 'gotta', 'said', 'goin', 'gone', 'le', 'ya',
+                         'gonna', 'huh', 'eh', 'id', 'ima'])
 PORTER_STEMMER = PorterStemmer()
 
 def cleanse_lyrics(data):
@@ -35,6 +38,11 @@ def cleanse_lyrics(data):
 
     # stem all words
     data['lyrics'] = data['lyrics'].apply(lambda x: [PORTER_STEMMER.stem(word) for word in x])
+
+    # remove all stop words
+    data['lyrics'] = [' '.join(x) for x in data['lyrics']]
+
+    data['lyrics'] = data['lyrics'].apply(lambda x: [item for item in str(x).split() if str(item) not in ENGLISH_STOPWORDS])
     return data
 
 def print_wordcloud(data):
@@ -45,15 +53,23 @@ def print_wordcloud(data):
     counter = Counter(overall_lyrics)
 
     # vectorize image
-    music_mask = np.array(Image.open('music_pc.png'))
-    wc = WordCloud(max_words=1000,
-                   mask = music_mask)
+    music_mask = np.array(Image.open('music_pc.jpg'))
+    colors = ImageColorGenerator(music_mask)
+    wc = WordCloud(background_color='white',
+                   max_words=500,
+                   mask = music_mask,
+                   width=music_mask.shape[1],
+                   height=music_mask.shape[0],
+                   color_func=colors)
     wc.generate_from_frequencies(counter)
 
     plt.figure(figsize=(17,10))
     plt.imshow(wc, interpolation='bilinear')
     plt.axis('off')
     plt.show()
+
+    # save figure
+    plt.savefig('Overall_Wordcloud.png')
 
 if __name__ == "__main__":
 
